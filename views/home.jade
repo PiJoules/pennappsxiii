@@ -1,4 +1,5 @@
 extends layout
+include mixins/category_budgets
 
 block content
   h1 Cash Strapped
@@ -23,4 +24,6 @@ block content
       data-product="connect",
       data-env="tartan",
       data-token="#{user.plaid_public_token}")
-    p #{transactions}
+
+    +category_budgets(category_data)
+    p #{expenses_data}

@@ -1,0 +1,6 @@
+mixin category_budgets(category_data)
+	each obj in category_data
+		p CATEGORY: #{obj.name}
+		p TOTAL: #{obj.total}
+		p # TRANSACTION: #{obj.transactions.length}
+		br
