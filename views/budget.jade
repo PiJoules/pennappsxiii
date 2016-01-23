@@ -1,13 +1,60 @@
 extends layout
 
 block content
-	form.form-horizontal(action='/budget/update', method='POST')
+	.alert.alert-success.fade.in.no-margin-left(id='flash', style='display: none')
+		button.close(type='button', onclick='$(".alert").hide()')
+			i.fa.fa-times-circle-o
+		div(id='flash-message')
+	form.form-horizontal(action='/budget/update', method='POST', id='budgetForm')
 		h3.form-group Your Budget
 		input(type='hidden', name='_csrf', value=_csrf)
+		.col-sm-12.no-margin-left.no-margin-right
+			.col-sm-6.no-margin-left.m-right-15
+				.form-group
+					label.control-label(for='totalBudget') Total Budget
+					.input-group
+						span.input-group-addon $
+						input.form-control(type='number', step='0.01', min='0.01', name='totalBudget', id='totalBudget', value='#{user.totalBudget}', required)
+			.col-sm-6.no-margin-right
+				.form-group
+					label.control-label(for='budgetPeriod') Budget Period
+					select.form-control(name='budgetPeriod', id='budgetPeriod', required)
+						option(value='weekly') Weekly
+						option(value='monthly') Monthly
+						option(value='annual') Annual
+		h3.form-group Budget Categories
 		.form-group
-			label.control-label(for='totalBudget') Total Budget ($)
-			input.form-control(type='number', step='0.01', min='0', name='totalBudget', id='totalBudget', value='#{user.totalBudget}', required)
-		.form-group
-			button.btn.btn.btn-primary(type='submit')
+			button.btn.btn-default(data-toggle='modal', href='#addCategoryModal', id='openAddCategoryModal') Add a Category
+		div.no-margin-left(id='budgetList')
+		.col-sm-12.no-margin-left.form-group
+			button.btn.btn-primary.no-margin-left(type='submit')
 				i.fa.fa-pencilr
 				| Update Budget
+
+	div.modal.fade(id="addCategoryModal", tabindex='-1', role='dialog', aria-labelledby='addCategoryModalLabel')
+		.modal-dialog(role='document')
+			.modal-content
+				.modal-header
+					button.close(data-dismiss='modal', aria-label='Close')
+						span(aria-hidden='true') &times;
+					h4.modal-title(id='addCategoryModalLabel') Add Budgeting Category
+				.modal-body
+					if user.budgetPeriod == 'annual'
+						p Select a category to add to your budget, and the alotted amount on an #{user.budgetPeriod} basis.
+					else
+						p Select a category to add to your budget, and the alotted amount on a #{user.budgetPeriod} basis.
+					form.form-horizontal(action='/budget/updateCategories', method='POST', id='addCategoryForm')
+						.col-sm-6.no-margin-left
+							label.control-label(for='category') Category
+							select.form-control(id='categories', name='category', required)
+						.col-sm-6.no-margin-right
+							label.control-label(for='categoryBudget') Allotted Budget
+							.input-group
+								span.input-group-addon $
+								input.form-control(type='number', step='0.01', min='0.01', name='categoryBudget', id='categoryBudget', value='1', required)
+						button.btn.btn-primary.m-top-15(type='submit') Add Category
+
+	script(type='text/javascript').
+		var user = !{JSON.stringify(user)};
+		var budgetCategories = !{JSON.stringify(budget_categories)};
+	script(src='/js/update_budget_page.js')

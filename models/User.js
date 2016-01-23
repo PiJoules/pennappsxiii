@@ -11,7 +11,8 @@ var userSchema = new mongoose.Schema({
     lastName: { type: String, default: '' }
   },
 
-  totalBudget: Number,
+  totalBudget: { type: Number, default: 0 },
+  budgetPeriod: { type: String, default: 'monthly' },
   budgets: Array,
 
   plaid_public_token: String,
