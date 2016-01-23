@@ -125,6 +125,9 @@ app.post('/account/delete', passportConf.isAuthenticated, userController.postDel
 app.get('/budget', passportConf.isAuthenticated, budgetController.getBudget);
 app.post('/budget/update', passportConf.isAuthenticated, budgetController.updateBudget);
 
+app.post('/login/mobile', userController.postLoginMobile);
+app.post('/signup/mobile', userController.postSignupMobile);
+app.post('/plaid/authenticateBank', budgetController.authenticateBank);
 app.post('/plaid/authenticate', passportConf.isAuthenticated, budgetController.authenticatePlaid);
 
 /**
@@ -141,7 +144,7 @@ app.use(errorHandler());
 /**
  * Start Express server.
  */
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), '0.0.0.0', function() {
   console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
 });
 

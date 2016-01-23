@@ -48,8 +48,53 @@ exports.postLogin = function(req, res, next) {
       req.flash('success', { msg: 'Success! You are logged in.' });
       res.redirect('/');
     });
-  })(req, res, next);
+  });
 };
+
+exports.postLoginMobile = function(req,res) {
+  if (!req.body.email || !req.body.password) {
+    response = {
+      code: 400,
+      msg: 'Bad parameters.'
+    }
+    return res.send(response);
+  }
+
+  User.findOne({ email: req.body.email }, function(err, user) {
+    if (!user) {
+      response = {
+        code: 400,
+        msg: 'Email not found.'
+      }
+      return res.send(response);
+    }
+    user.comparePassword(req.body.password, function(err, isMatch) {
+      if (isMatch) {
+        response = {};
+        if (user.plaid_access_token) {
+          response = {
+            code: 200,
+            msg: 'Logged in!.',
+            access_token: user.plaid_access_token
+          }
+        } else {
+          response = {
+            code: 200,
+            msg: 'Logged in!.'
+          }
+        }
+        
+        return res.send(response);
+      } else {
+        response = {
+          code: 400,
+          msg: 'Invalid email or password.'
+        }
+        return res.send(response);
+        }
+    });
+  });
+}
 
 /**
  * GET /logout
@@ -112,6 +157,45 @@ exports.postSignup = function(req, res, next) {
     });
   });
 };
+
+exports.postSignupMobile = function(req, res) {
+  if (!req.body.email || !req.body.password) {
+    response = {
+      code: 400,
+      msg: 'Bad parameters.'
+    }
+    return res.send(response);
+  }
+
+  var user = new User({
+    email: req.body.email,
+    password: req.body.password
+  });
+
+  User.findOne({ email: req.body.email }, function(err, existingUser) {
+    if (existingUser) {
+      response = {
+        code: 400,
+        msg: 'User already exists.'
+      }
+      return res.send(response);
+    }
+    user.save(function(err) {
+      if (err) {
+        response = {
+          code: 500,
+          msg: 'There was an issue with creating the user.'
+        }
+        return res.send(response);
+      }
+      response = {
+        code: 200,
+        msg: 'Success!'
+      }
+      return res.send(response);
+    });
+  });
+}
 
 /**
  * GET /account
