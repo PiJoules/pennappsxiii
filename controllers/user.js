@@ -75,12 +75,14 @@ exports.postLoginMobile = function(req,res) {
           response = {
             code: 200,
             msg: 'Logged in!.',
-            access_token: user.plaid_access_token
+            access_token: user.plaid_access_token,
+            user: req.user
           }
         } else {
           response = {
             code: 200,
-            msg: 'Logged in!.'
+            msg: 'Logged in!.',
+            user: req.user
           }
         }
         
@@ -190,7 +192,8 @@ exports.postSignupMobile = function(req, res) {
       }
       response = {
         code: 200,
-        msg: 'Success!'
+        msg: 'Success!',
+        user: user
       }
       return res.send(response);
     });
