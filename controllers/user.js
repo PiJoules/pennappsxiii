@@ -46,7 +46,7 @@ exports.postLogin = function(req, res, next) {
         return next(err);
       }
       req.flash('success', { msg: 'Success! You are logged in.' });
-      res.redirect(req.session.returnTo || '/');
+      res.redirect('/');
     });
   })(req, res, next);
 };
@@ -133,10 +133,8 @@ exports.postUpdateProfile = function(req, res, next) {
       return next(err);
     }
     user.email = req.body.email || '';
-    user.profile.name = req.body.name || '';
-    user.profile.gender = req.body.gender || '';
-    user.profile.location = req.body.location || '';
-    user.profile.website = req.body.website || '';
+    user.profile.firstName = req.body.firstName || '';
+    user.profile.lastName = req.body.lastName || '';
     user.save(function(err) {
       if (err) {
         return next(err);
@@ -189,26 +187,6 @@ exports.postDeleteAccount = function(req, res, next) {
     req.logout();
     req.flash('info', { msg: 'Your account has been deleted.' });
     res.redirect('/');
-  });
-};
-
-/**
- * GET /account/unlink/:provider
- * Unlink OAuth provider.
- */
-exports.getOauthUnlink = function(req, res, next) {
-  var provider = req.params.provider;
-  User.findById(req.user.id, function(err, user) {
-    if (err) {
-      return next(err);
-    }
-    user[provider] = undefined;
-    user.tokens = _.reject(user.tokens, function(token) { return token.kind === provider; });
-    user.save(function(err) {
-      if (err) return next(err);
-      req.flash('info', { msg: provider + ' account has been unlinked.' });
-      res.redirect('/account');
-    });
   });
 };
 
@@ -288,8 +266,8 @@ exports.postReset = function(req, res, next) {
       });
       var mailOptions = {
         to: user.email,
-        from: 'hackathon@starter.com',
-        subject: 'Your Hackathon Starter password has been changed',
+        from: 'erictimmerman@college.harvard.edu',
+        subject: 'Your Cash Strapped password has been changed',
         text: 'Hello,\n\n' +
           'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
       };
@@ -363,8 +341,8 @@ exports.postForgot = function(req, res, next) {
       });
       var mailOptions = {
         to: user.email,
-        from: 'hackathon@starter.com',
-        subject: 'Reset your password on Hackathon Starter',
+        from: 'erictimmerman@college.harvard.edu',
+        subject: 'Reset your password on Cash Strapped',
         text: 'You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n' +
           'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
           'http://' + req.headers.host + '/reset/' + token + '\n\n' +
