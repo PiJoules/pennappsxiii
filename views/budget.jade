@@ -1,0 +1,13 @@
+extends layout
+
+block content
+	form.form-horizontal(action='/budget/update', method='POST')
+		h3.form-group Your Budget
+		input(type='hidden', name='_csrf', value=_csrf)
+		.form-group
+			label.control-label(for='totalBudget') Total Budget ($)
+			input.form-control(type='number', step='0.01', min='0', name='totalBudget', id='totalBudget', value='#{user.totalBudget}', required)
+		.form-group
+			button.btn.btn.btn-primary(type='submit')
+				i.fa.fa-pencilr
+				| Update Budget

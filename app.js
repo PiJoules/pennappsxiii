@@ -33,6 +33,7 @@ dotenv.load({ path: '.env' });
  */
 var homeController = require('./controllers/home');
 var userController = require('./controllers/user');
+var budgetController = require('./controllers/budget');
 var apiController = require('./controllers/api');
 
 /**
@@ -88,7 +89,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 app.use(lusca({
-  csrf: true,
+  csrf: false,
   xframe: 'SAMEORIGIN',
   xssProtection: true
 }));
@@ -120,6 +121,11 @@ app.get('/account', passportConf.isAuthenticated, userController.getAccount);
 app.post('/account/profile', passportConf.isAuthenticated, userController.postUpdateProfile);
 app.post('/account/password', passportConf.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConf.isAuthenticated, userController.postDeleteAccount);
+
+app.get('/budget', passportConf.isAuthenticated, budgetController.getBudget);
+app.post('/budget/update', passportConf.isAuthenticated, budgetController.updateBudget);
+
+app.post('/plaid/authenticate', passportConf.isAuthenticated, budgetController.authenticatePlaid);
 
 /**
  * API examples routes.

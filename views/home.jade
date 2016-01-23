@@ -2,4 +2,25 @@ extends layout
 
 block content
   h1 Cash Strapped
-  p Content shit
+
+  if !user.plaid_access_token
+    form(id="plaid-link" method="POST" action="/plaid/authenticate")
+
+    script(src="https://cdn.plaid.com/link/stable/link-initialize.js",
+      data-client-name="Cash Strapped",
+      data-form-id="plaid-link",
+      data-key="test_key",
+      data-product="connect",
+      data-env="tartan")
+  else
+    form(id="plaid-update" method="POST" action="/plaid/authenticate")
+
+    script(
+      src="https://cdn.plaid.com/link/stable/link-initialize.js",
+      data-client-name="Cash Strapped",
+      data-form-id="plaid-update",
+      data-key="test_key",
+      data-product="connect",
+      data-env="tartan",
+      data-token="#{user.plaid_public_token}")
+    p #{transactions}

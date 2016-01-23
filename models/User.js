@@ -11,6 +11,12 @@ var userSchema = new mongoose.Schema({
     lastName: { type: String, default: '' }
   },
 
+  totalBudget: Number,
+  budgets: Array,
+
+  plaid_public_token: String,
+  plaid_access_token: String,
+
   resetPasswordToken: String,
   resetPasswordExpires: Date
 });
