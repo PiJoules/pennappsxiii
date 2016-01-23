@@ -76,4 +76,8 @@ textarea {
   cursor: pointer;
 }
 
+#plaid-update {
+  display: inline-block;
+}
+
 /*# sourceMappingURL=main.css.map */
