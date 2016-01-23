@@ -27,11 +27,11 @@ exports.index = function(req, res, next) {
 			}
 
 			var category_data = {
-				'Other': { name: 'Other', total: 0.0, transactions: [] }
+				'Other': { categoryName: 'Other', total: 0.0, percentOfTotal: 0, transactions: [] }
 			};
 
 			for (var i = 0; i < constants.BUDGET_CATEGORIES.length; i++) {
-				category_data[constants.BUDGET_CATEGORIES[i]] = { name: constants.BUDGET_CATEGORIES[i], total: 0.0, transactions: [] };
+				category_data[constants.BUDGET_CATEGORIES[i]] = { categoryName: constants.BUDGET_CATEGORIES[i], total: 0.0, percentOfTotal: 0, transactions: [] };
 			}
 
 			for (var i = 0; i < response.transactions.length; i++) {
@@ -45,6 +45,20 @@ exports.index = function(req, res, next) {
 			}
 
 			for (var category in category_data) {
+				var category_budget = null;
+				var user_budgets_category = false;
+				for (var i = 0; i < req.user.budgets.length; i++){
+					if (req.user.budgets[i].categoryName == category) {
+						user_budgets_category = true;
+						category_budget = req.user.budgets[i];
+						break;
+					}
+				}
+				if (!user_budgets_category) {
+					category_data[category] = null;
+					continue;
+				}
+
 				var total = 0.0;
 
 				if (!category_data.hasOwnProperty(category)) continue;
@@ -52,21 +66,28 @@ exports.index = function(req, res, next) {
 				var single_category_data = category_data[category];
 				for (var i = 0; i < single_category_data.transactions.length; i++) {
 					var trans = single_category_data.transactions[i];
-					if (trans.amount) {
+					if (trans.amount && trans.amount > 0) {
 						total += trans.amount;
 					}
 				}
 				single_category_data.total = total;
+
+				var percentOfAll = (total / req.user.totalBudget) * 100;
+				single_category_data.percentOfAll = percentOfAll;
+
+				var percentOfCategoryBudget = (total / category_budget.amount) * 100;
+				single_category_data.percentOfCategoryBudget = percentOfCategoryBudget;
+
 				expenses_data.total += total;
 			}
 
 			console.log(category_data);
-			console.log(expenses_data);
 
 			return res.render('home', {
 				title: 'Home',
 				category_data: category_data,
-				expenses_data: expenses_data
+				expenses_data: expenses_data,
+				bar_colors: constants.BAR_COLORS
 			});
 		});
 	} else {

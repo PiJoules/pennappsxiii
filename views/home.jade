@@ -1,11 +1,14 @@
 extends layout
 include mixins/category_budgets
+include mixins/stacked_progress_bar
 
 block content
-  h1 Cash Strapped
+  h1.text-center Cash Strapped
+  br
 
   if !user.plaid_access_token
-    form(id="plaid-link" method="POST" action="/plaid/authenticate")
+    .col-sm-12.text-center
+      form(id="plaid-link" method="POST" action="/plaid/authenticate")
 
     script(src="https://cdn.plaid.com/link/stable/link-initialize.js",
       data-client-name="Cash Strapped",
@@ -14,7 +17,10 @@ block content
       data-product="connect",
       data-env="tartan")
   else
-    form(id="plaid-update" method="POST" action="/plaid/authenticate")
+    .col-sm-12.text-center
+      form.m-right-5(id="plaid-update" method="POST" action="/plaid/authenticate")
+      i.fa.fa-info-circle(data-toggle='tooltip', title='If you have changed your login credentials with your banking institution, you will need to relink your account.')
+    br
 
     script(
       src="https://cdn.plaid.com/link/stable/link-initialize.js",
@@ -24,6 +30,17 @@ block content
       data-product="connect",
       data-env="tartan",
       data-token="#{user.plaid_public_token}")
+    br
 
-    +category_budgets(category_data)
-    p #{expenses_data}
+    if user.totalBudget > 0
+      h2 Total #{capitalize(user.budgetPeriod)} Expenses
+        span.pull-right $#{expenses_data.total} / $#{user.totalBudget}
+      +stacked_progress_bar(category_data, expenses_data, bar_colors)
+      +category_budgets(category_data, bar_colors)
+    else
+      h4.text-center You have not set a budget! Click #[a(href='/budget') here] to do so.
+
+  script(type='text/javascript').
+    var user = !{JSON.stringify(user)};
+    var barColors = !{JSON.stringify(bar_colors)};
+  script(src='/js/main.js')

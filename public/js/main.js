@@ -1,5 +1,6 @@
 $(document).ready(function() {
 
-  // Place JavaScript code here...
+	$('[data-toggle="tooltip"]').tooltip();
+	$('#plaid-link-button').addClass('btn btn-primary btn-sm');
 
 });
