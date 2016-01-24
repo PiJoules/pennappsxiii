@@ -6,16 +6,17 @@ html
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
     meta(name='csrf-token', content=_csrf)
     title #{title} - Cash Strapped
+    link(href='https://www.google.com/fonts/specimen/Merriweather+Sans#pairings', rel='stylesheet', type='text/css')
     link(rel='stylesheet', href='/css/bootstrap.min.css')
     link(rel='stylesheet', href='/css/font-awesome/css/font-awesome.min.css')
     link(rel='stylesheet', href='/css/main.css')
     script(src='/js/lib/jquery.min.js')
     script(src='/js/lib/bootstrap.min.js')
+    script(src='http://oauth.googlecode.com/svn/code/javascript/oauth.js')
+    script(src='http://oauth.googlecode.com/svn/code/javascript/sha1.js')
   body
     include partials/header
 
     .container
       include partials/flash
       block content
-
-    include partials/footer

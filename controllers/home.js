@@ -111,6 +111,7 @@ exports.index = function(req, res, next) {
 	} else {
 		return res.render('home', {
 			title: 'Home',
+			bar_colors: null
 		});
 	}
 }

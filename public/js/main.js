@@ -1,5 +1,103 @@
 var geocoder;
 var map;
+var dealsMap;
+
+var dealsMarkers = [];
+
+var auth = {
+    consumerKey: "afUNacv8KuTBj9EynqAuIQ",
+    consumerSecret: "YrryIBhOqGwz6Wa7EgIiOodGd4M",
+    accessToken: "g8DUAF8u1_zrTOg7cf0AZftHLrsBWqHl",
+    accessTokenSecret: "sn4_a6NR7zfj4ec8VfGEWX5JgXM",
+    serviceProvider: {
+        signatureMethod: "HMAC-SHA1"
+    }
+};
+
+function getBusinesses(near, callback){
+	/**
+     * Sort by the average prices of deals from the business
+     */
+    function sortByPrice(businesses){
+        function avgOptionsPrice(options){
+            var sum = 0;
+            options.forEach(function(option){
+                sum += option.price;
+            });
+            return sum / options.length;
+        }
+
+        function avgDealPrice(deals){
+            var sum = 0;
+            deals.forEach(function(deal){
+                sum += avgOptionsPrice(deal.options);
+            });
+            return sum / deals.length;
+        }
+
+        businesses.sort(function(a, b){
+            return avgDealPrice(a.deals) - avgDealPrice(b.deals);
+        });
+    }
+
+    var accessor = {
+        consumerSecret: auth.consumerSecret,
+        tokenSecret: auth.accessTokenSecret
+    };	
+
+    parameters = [
+        ['location', near],
+        ['limit', 20],
+        ['deals_filter', true],
+        ['callback', 'cb'],
+        ['oauth_consumer_key', auth.consumerKey],
+        ['oauth_consumer_secret', auth.consumerSecret],
+        ['oauth_token', auth.accessToken],
+        ['oauth_signature_method', 'HMAC-SHA1']
+    ];
+
+    var message = {
+        'action': 'http://api.yelp.com/v2/search',
+        'method': 'GET',
+        'parameters': parameters
+    };
+
+    OAuth.setTimestampAndNonce(message);
+    OAuth.SignatureMethod.sign(message, accessor);
+
+    var parameterMap = OAuth.getParameterMap(message.parameters);
+    parameterMap.oauth_signature = OAuth.percentEncode(parameterMap.oauth_signature)
+
+    $.ajax({
+        'url': message.action,
+        'data': parameterMap,
+        'cache': true,
+        'dataType': 'jsonp',
+        'jsonpCallback': 'cb',
+        'success': function(data, textStats, XMLHttpRequest) {
+            // data as json
+            var businesses = data.businesses;
+            sortByPrice(businesses);
+            callback(businesses);
+        }
+    });
+}
+
+function setDealsMapOnAll(map) {
+  for (var i = 0; i < dealsMarkers.length; i++) {
+    dealsMarkers[i].setMap(map);
+  }
+}
+
+function clearDealsMapMarkers() {
+  setDealsMapOnAll(null);
+}
+
+function deleteDealsMapMarkers() {
+  clearDealsMapMarkers();
+  dealsMarkers = [];
+}
+
 function initMap() {
 	geocoder = new google.maps.Geocoder();
 	map = new google.maps.Map(document.getElementById('category-transactions-map'), {
@@ -8,13 +106,112 @@ function initMap() {
 		zoom: 8,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	});
+
+	dealsMap = new google.maps.Map(document.getElementById('deals-map'), {
+		// San Francisco default
+		center: {lat: 37.773972, lng: 	-122.431297},
+		zoom: 8,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	});
+
+	var input = /** @type {!HTMLInputElement} */(document.getElementById('pac-input'));
+
+	dealsMap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+	var autocomplete = new google.maps.places.Autocomplete(input);
+	autocomplete.bindTo('bounds', dealsMap);
+
+	autocomplete.addListener('place_changed', function() {
+		var place = autocomplete.getPlace();
+		if (!place.geometry) {
+		  return;
+		}
+
+		deleteDealsMapMarkers();
+
+		getBusinesses(place.formatted_address, function(businesses){
+			for (var i = 0; i < businesses.length; i++) {
+				var business = businesses[i];
+
+				var latLng = null;
+				if (business.location && business.location.coordinate && business.location.coordinate.latitude && business.location.coordinate.longitude) {
+					latLng = new google.maps.LatLng(business.location.coordinate.latitude, business.location.coordinate.longitude);
+				}
+
+				if (!latLng) {
+					continue;
+				}
+
+				var marker = new google.maps.Marker({
+					position: latLng,
+					map: dealsMap
+				});
+				dealsMarkers.push(marker);
+
+				var address = null;
+				if (business.location && business.location.address && business.location.address.length > 0) {
+					address = business.location.address[0];
+				}
+
+				var content = '<div> <b>Business: </b>' + business.name + '</br>';
+				if (address){
+					content += '<b>Location: </b>' + address + '</br>';		
+				}
+				content += '<b>Deals: </b></br>';
+				for (var j = 0; j < business.deals.length; j++){
+					if (j + 1 == business.deals.length){
+						content += '<p>' + business.deals[j].title + '</p>';
+					} else {
+						content += '<p>' + business.deals[j].title + '</p></br>';
+					}
+				}
+				if (business.url){
+					content += '<b>Website: </b> <a target="_blank" href=' + business.url + '>Click Here</a>';
+				}
+				content += '</div>';
+				marker.info = new google.maps.InfoWindow({
+				  content: content
+				});
+
+				google.maps.event.addListener(marker, 'click', function() {
+				  this.info.open(dealsMap, this);
+				});
+			}
+
+			// If the place has a geometry, then present it on a map.
+			if (place.geometry.viewport) {
+			  dealsMap.fitBounds(place.geometry.viewport);
+			} else {
+			  dealsMap.setCenter(place.geometry.location);
+			  dealsMap.setZoom(17);  // Why 17? Because it looks good.
+			}
+		});
+	});
 }
 
 $(document).ready(function() {
 	$('[data-toggle="tooltip"]').tooltip();
-	$('#plaid-link-button').addClass('btn btn-primary btn-sm');
+
+	if (user === undefined){
+		console.log('Something went wrong.');
+	} else {
+		if (!user.plaid_access_token){
+			$('#plaid-link-button').addClass('btn btn-primary btn-lg btn-link-bank');
+			$('#plaid-link-button').text('Link Account');
+		} else {
+			$('#plaid-link-button').addClass('btn btn-primary btn-sm');
+			$('#plaid-link-button').text('Update Bank Credentials');
+		}
+	}
 
 	var markers = [];
+
+	var hideSpinner = function(){
+		$('#loading-home-spinner').addClass('hidden');
+		$('#loading-home').removeClass('hidden');
+	}
+
+	setTimeout(hideSpinner, 1000);
 
 	function addInfoWindow(marker, transaction) {
 		var category = transaction.category.length > 1 ? transaction.category[1] : transaction.category[0];
@@ -152,18 +349,29 @@ $(document).ready(function() {
 
 	$('#categoryMapModal').on('shown.bs.modal', function () {
 	    google.maps.event.trigger(map, "resize");
-	    var bounds = new google.maps.LatLngBounds();
-		for(i = 0 ;i < markers.length; i++) {
-			bounds.extend(markers[i].getPosition());
+	    if (markers.length > 0) {
+		    var bounds = new google.maps.LatLngBounds();
+			for(i = 0 ;i < markers.length; i++) {
+				bounds.extend(markers[i].getPosition());
+			}
+
+			if (markers.length > 0 && bounds.getNorthEast().equals(bounds.getSouthWest())) {
+		       var extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01);
+		       var extendPoint2 = new google.maps.LatLng(bounds.getNorthEast().lat() - 0.01, bounds.getNorthEast().lng() - 0.01);
+		       bounds.extend(extendPoint1);
+		       bounds.extend(extendPoint2);
+		    }
+
+			map.fitBounds(bounds);
 		}
+	});
 
-		if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-	       var extendPoint1 = new google.maps.LatLng(bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01);
-	       var extendPoint2 = new google.maps.LatLng(bounds.getNorthEast().lat() - 0.01, bounds.getNorthEast().lng() - 0.01);
-	       bounds.extend(extendPoint1);
-	       bounds.extend(extendPoint2);
-	    }
+	$('.openDealsModal').on('click', function(){
+		$('#dealsModal').modal('show');
+	});
 
-		map.fitBounds(bounds);
+	$('#dealsModal').on('shown.bs.modal', function () {
+	    google.maps.event.trigger(dealsMap, "resize");
+	    dealsMap.setCenter(new google.maps.LatLng(37.773972, -122.431297));
 	});
 });

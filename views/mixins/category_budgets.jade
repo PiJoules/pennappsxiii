@@ -4,8 +4,9 @@ mixin category_budgets(category_data, bar_colors)
 		if obj
 			h3 #{obj.categoryName}
 				span.pull-right
-					i.fa.fa-sm.fa-map.cursor(data-category-data='#{JSON.stringify(obj)}', class='openMapCategoryModal')
-					i.fa.fa-sm.fa-list.cursor(data-category-data='#{JSON.stringify(obj)}', class='openListCategoryModal')
+					if obj.transactions.length > 0
+						i.fa.fa-sm.fa-map.cursor(data-category-data='#{JSON.stringify(obj)}', class='openMapCategoryModal')
+						i.fa.fa-sm.fa-list.cursor(data-category-data='#{JSON.stringify(obj)}', class='openListCategoryModal')
 					| $#{obj.total} / $#{obj.budgetAmount}
 			.progress
 				.progress-bar(style='width: #{obj.percentOfCategoryBudget}%; background-color: #{bar_colors[color_index]}; min-width: 2em', role='progress-bar', aria-valuenow='#{obj.percentOfCategoryBudget}', aria-valuemin='0', aria-valuemax='100')

@@ -1,9 +1,10 @@
 extends layout
 
 block content
-	.col-sm-12
-		h1.text-center(style='margin-top: 150px; font-size: 60px;') Cash Strapped
-		p.text-center Short Description
-	.col-sm-12.text-center
-		a.btn.btn-lg.btn-primary.m-right-5(href='/login') Log In
-		a.btn.btn-lg.btn-success(href='/signup') Sign Up
+	.landing-page
+		.col-sm-12
+			h1.text-center(style='margin-top: 150px; margin-bottom: 50px; font-size: 60px;')
+				img(src='/assets/logo_transparent.png', alt='Cash Strapped', style='width: 1012px; height: 180px;')
+		.col-sm-12.text-center
+			a.btn.btn-lg.btn-primary.m-right-5(href='/login') Log In
+			a.btn.btn-lg.btn-success(href='/signup') Sign Up

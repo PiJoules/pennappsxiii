@@ -32,7 +32,6 @@ exports.postLogin = function(req, res, next) {
     req.flash('errors', errors);
     return res.redirect('/login');
   }
-
   passport.authenticate('local', function(err, user, info) {
     if (err) {
       return next(err);
@@ -48,7 +47,7 @@ exports.postLogin = function(req, res, next) {
       req.flash('success', { msg: 'Success! You are logged in.' });
       res.redirect('/');
     });
-  });
+  })(req, res, next);
 };
 
 exports.postLoginMobile = function(req,res) {

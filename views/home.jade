@@ -3,43 +3,52 @@ include mixins/category_budgets
 include mixins/stacked_progress_bar
 
 block content
-  h1.text-center Cash Strapped
-  br
-
-  if !user.plaid_access_token
-    .col-sm-12.text-center
-      form(id="plaid-link" method="POST" action="/plaid/authenticate")
-
-    script(src="https://cdn.plaid.com/link/stable/link-initialize.js",
-      data-client-name="Cash Strapped",
-      data-form-id="plaid-link",
-      data-key="test_key",
-      data-product="connect",
-      data-env="tartan")
-  else
-    .col-sm-12.text-center
-      form.m-right-5(id="plaid-update" method="POST" action="/plaid/authenticate")
-      i.fa.fa-info-circle(data-toggle='tooltip', title='If you have changed your login credentials with your banking institution, you will need to relink your account.')
-    br
-
-    script(
-      src="https://cdn.plaid.com/link/stable/link-initialize.js",
-      data-client-name="Cash Strapped",
-      data-form-id="plaid-update",
-      data-key="test_key",
-      data-product="connect",
-      data-env="tartan",
-      data-token="#{user.plaid_public_token}")
-    br
-
-    if user.totalBudget > 0
-      h2 Total #{capitalize(user.budgetPeriod)} Expenses
-        span.pull-right $#{expenses_data.total} / $#{user.totalBudget}
-      +stacked_progress_bar(category_data, expenses_data, bar_colors)
+  div.text-center(id='loading-home-spinner')
+    i.fa.fa-spinner.fa-spin(style='font-size: 80px; margin-top: 10px;')
+  div.hidden(id='loading-home')
+    if !user.plaid_access_token
+      h1.text-center(style='font-size: 60px;') Cash Strapped
       br
-      +category_budgets(category_data, bar_colors)
+      .col-sm-12
+        .col-sm-6.col-sm-offset-3
+          h4 You haven't yet linked a bank account. Click the button below to access your transaction statements from your favorite institution.
+      .col-sm-12.text-center.connect-to-bank(style='margin-top: 50px;')
+        form(id="plaid-link" method="POST" action="/plaid/authenticate")
+
+      script(src="https://cdn.plaid.com/link/stable/link-initialize.js",
+        data-client-name="Cash Strapped",
+        data-form-id="plaid-link",
+        data-key="test_key",
+        data-product="connect",
+        data-env="tartan")
     else
-      h4.text-center You have not set a budget! Click #[a(href='/budget') here] to do so.
+      .col-sm-12
+        .col-sm-6.col-sm-offset-3
+          h1.text-center(style='font-size: 60px;') Cash Strapped
+        .col-sm-3.text-center(style='margin-top: 40px;')
+          form.m-right-5(id="plaid-update" method="POST" action="/plaid/authenticate")
+          i.fa.fa-info-circle(data-toggle='tooltip', title='If you have changed your login credentials with your banking institution, you will need to relink your account.')
+
+      script(
+        src="https://cdn.plaid.com/link/stable/link-initialize.js",
+        data-client-name="Cash Strapped",
+        data-form-id="plaid-update",
+        data-key="test_key",
+        data-product="connect",
+        data-env="tartan",
+        data-token="#{user.plaid_public_token}")
+      br
+
+      if user.totalBudget > 0
+        h2 Total #{capitalize(user.budgetPeriod)} Expenses
+          span.pull-right
+            i.fa.fa-sm.fa-money.cursor(class='openDealsModal')
+            | $#{expenses_data.total} / $#{user.totalBudget}
+        +stacked_progress_bar(category_data, expenses_data, bar_colors)
+        br
+        +category_budgets(category_data, bar_colors)
+      else
+        h4.text-center You have not set a budget! Click #[a(href='/budget') here] to do so.
 
   div.modal.fade(id="categoryMapModal", tabindex='-1', role='dialog', aria-labelledby='categoryMapModalLabel')
     .modal-dialog(role='document')
@@ -50,6 +59,17 @@ block content
           h4.modal-title(id='categoryMapModalLabel') Transaction Map
         .modal-body(style='height: 500px;')
           div(id='category-transactions-map')
+
+  div.modal.fade(id="dealsModal", tabindex='-1', role='dialog', aria-labelledby='dealsModalLabel')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          button.close(data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+          h4.modal-title(id='dealsModalLabel') Suggestions for those on a Budget
+        .modal-body(style='height: 500px;')
+          input.controls(id='pac-input', type='text', placeholder='Enter a location')
+          div(id='deals-map')
 
   div.modal.fade(id="categoryListModal", tabindex='-1', role='dialog', aria-labelledby='categoryListModalLabel')
     .modal-dialog(role='document')
@@ -72,4 +92,4 @@ block content
     var user = !{JSON.stringify(user)};
     var barColors = !{JSON.stringify(bar_colors)};
   script(src='/js/main.js')
-  script(async='', defer='', src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBIX1Q4BwaW-cf_hcVOvlVeb42ceKtO8mc&callback=initMap')
+  script(async='', defer='', src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBIX1Q4BwaW-cf_hcVOvlVeb42ceKtO8mc&callback=initMap&libraries=places')
