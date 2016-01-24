@@ -15,7 +15,26 @@ var plaidClient = new plaid.Client(process.env.PLAID_CLIENT_ID,
 
 exports.index = function(req, res, next) {
 	if (req.user && req.user.plaid_access_token) {
-		plaidClient.getConnectUser(req.user.plaid_access_token, function(err, response) {
+		var numDaysToGet = 0;
+		var daysFromStartOfMonth = new Date().getDate();
+
+		switch(req.user.budgetPeriod) {
+			case 'weekly':
+				numDaysToGet = Math.min(7, daysFromStartOfMonth);
+				break;
+			case 'monthly':
+				numDaysToGet = Math.min(31, daysFromStartOfMonth);
+				break;
+			default:
+				numDaysToGet = Math.min(365, daysFromStartOfMonth);
+				break;
+		}
+		// var daysQuery = numDaysToGet + ' days ago';
+		var daysQuery = '1000000 days ago';
+		plaidClient.getConnectUser(req.user.plaid_access_token, {
+		  gte: daysQuery,
+		}, function(err, response) {
+			console.log(response);
 			if (err) {
 				console.log(err);
 				req.flash('errors', { msg: 'Unable to get transaction information.' });
@@ -73,15 +92,14 @@ exports.index = function(req, res, next) {
 				single_category_data.total = total;
 
 				var percentOfAll = (total / req.user.totalBudget) * 100;
-				single_category_data.percentOfAll = percentOfAll;
+				single_category_data.percentOfAll = Math.min(percentOfAll, 100);
 
 				var percentOfCategoryBudget = (total / category_budget.amount) * 100;
-				single_category_data.percentOfCategoryBudget = percentOfCategoryBudget;
+				single_category_data.percentOfCategoryBudget = Math.min(percentOfCategoryBudget, 100);
+				single_category_data.budgetAmount = category_budget.amount;
 
 				expenses_data.total += total;
 			}
-
-			console.log(category_data);
 
 			return res.render('home', {
 				title: 'Home',

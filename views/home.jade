@@ -36,11 +36,40 @@ block content
       h2 Total #{capitalize(user.budgetPeriod)} Expenses
         span.pull-right $#{expenses_data.total} / $#{user.totalBudget}
       +stacked_progress_bar(category_data, expenses_data, bar_colors)
+      br
       +category_budgets(category_data, bar_colors)
     else
       h4.text-center You have not set a budget! Click #[a(href='/budget') here] to do so.
+
+  div.modal.fade(id="categoryMapModal", tabindex='-1', role='dialog', aria-labelledby='categoryMapModalLabel')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          button.close(data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+          h4.modal-title(id='categoryMapModalLabel') Transaction Map
+        .modal-body(style='height: 500px;')
+          div(id='category-transactions-map')
+
+  div.modal.fade(id="categoryListModal", tabindex='-1', role='dialog', aria-labelledby='categoryListModalLabel')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          button.close(data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+          h4.modal-title(id='categoryListModalLabel') Transaction List
+        .modal-body
+          table.table.table-hover(id='category-transactions-table')
+            thead
+              tr
+                th Merchant
+                th Amount
+                th Date
+                th Purchase Type
+            tbody(id='category-transactions-table-list')
 
   script(type='text/javascript').
     var user = !{JSON.stringify(user)};
     var barColors = !{JSON.stringify(bar_colors)};
   script(src='/js/main.js')
+  script(async='', defer='', src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBIX1Q4BwaW-cf_hcVOvlVeb42ceKtO8mc&callback=initMap')

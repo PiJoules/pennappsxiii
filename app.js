@@ -103,8 +103,12 @@ app.use(function(req, res, next) {
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
 app.locals.capitalize = function(value){
-    return value.charAt(0).toUpperCase() + value.slice(1);
+  return value.charAt(0).toUpperCase() + value.slice(1);
 };
+
+app.locals.roundPercentage = function(value){
+  return Math.round(value);
+}
 
 /**
  * Primary app routes.
@@ -147,7 +151,7 @@ app.use(errorHandler());
 /**
  * Start Express server.
  */
-app.listen(app.get('port'), '0.0.0.0', function() {
+app.listen(app.get('port'), function() {
   console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
 });
 
