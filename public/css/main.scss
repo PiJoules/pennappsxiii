@@ -157,10 +157,51 @@ $light-green: #6ff807;
 
 #plaid-update {
   display: inline-block;
+
+  #plaid-link-button {
+    font-size: 14px !important;
+  }
 }
 
 #plaid-link-button {
   font-size: 22px !important;
+}
+
+button.close span {
+  font-size: 30px !important;
+}
+
+.gm-style {
+  div, input {
+    font-size: 12px !important;
+  }
+
+  .info-window {
+    font-size: 14px !important;
+    a, p {
+      font-size: 14px !important;
+    }
+  }
+
+  .gm-style-cc {
+    a {
+      font-size: 12px !important;
+    }
+  }
+}
+
+.tooltip {
+  div {
+    font-size: 12px !important;
+  }
+}
+
+#total-expenses {
+  font-size: 24px !important;
+}
+
+.category-expenses {
+  font-size: 20px !important;
 }
 
 .connect-to-bank .btn-link-bank {
