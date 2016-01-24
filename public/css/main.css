@@ -1,5 +1,14 @@
-a, span, h1, h2, h3, h4, h5, h6, p {
-  font-family: 'Merriweather', sans-serif;
+a, span, h1, h2, h3, h4, h5, h6, p, label, button, input, div, select, option {
+  font-family: 'Josefin Slab', sans-serif;
+  font-weight: 700;
+}
+
+a, span, p, button, input, div {
+  font-size: 16px !important;
+}
+
+.btn-lg {
+  font-size: 18px !important;
 }
 
 html {
@@ -142,6 +151,10 @@ textarea {
 
 #plaid-update {
   display: inline-block;
+}
+
+#plaid-link-button {
+  font-size: 22px !important;
 }
 
 .connect-to-bank .btn-link-bank {
