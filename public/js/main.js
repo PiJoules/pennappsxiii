@@ -153,7 +153,7 @@ function initMap() {
 					address = business.location.address[0];
 				}
 
-				var content = '<div> <b>Business: </b>' + business.name + '</br>';
+				var content = '<div class="info-window"> <b>Business: </b>' + business.name + '</br>';
 				if (address){
 					content += '<b>Location: </b>' + address + '</br>';		
 				}

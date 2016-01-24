@@ -3,12 +3,12 @@ mixin category_budgets(category_data, bar_colors)
 	each obj in category_data
 		if obj
 			h3 #{obj.categoryName}
-				span.pull-right
+				span.pull-right(class='category-expenses')
 					if obj.transactions.length > 0
 						i.fa.fa-sm.fa-map.cursor(data-category-data='#{JSON.stringify(obj)}', class='openMapCategoryModal')
 						i.fa.fa-sm.fa-list.cursor(data-category-data='#{JSON.stringify(obj)}', class='openListCategoryModal')
 					| $#{obj.total} / $#{obj.budgetAmount}
 			.progress
-				.progress-bar(style='width: #{obj.percentOfCategoryBudget}%; background-color: #{bar_colors[color_index]}; min-width: 2em', role='progress-bar', aria-valuenow='#{obj.percentOfCategoryBudget}', aria-valuemin='0', aria-valuemax='100')
+				.progress-bar.progress-bar-striped(style='width: #{obj.percentOfCategoryBudget}%; background-color: #{bar_colors[color_index]}; min-width: 2em', role='progress-bar', aria-valuenow='#{obj.percentOfCategoryBudget}', aria-valuemin='0', aria-valuemax='100')
 					| #{roundPercentage(obj.percentOfCategoryBudget)}%
 		- color_index += 1

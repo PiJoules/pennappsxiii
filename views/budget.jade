@@ -39,10 +39,7 @@ block content
 						span(aria-hidden='true') &times;
 					h4.modal-title(id='addCategoryModalLabel') Add Budgeting Category
 				.modal-body
-					if user.budgetPeriod == 'annual'
-						p Select a category to add to your budget, and the alotted amount on an #{user.budgetPeriod} basis.
-					else
-						p Select a category to add to your budget, and the alotted amount on a #{user.budgetPeriod} basis.
+					p(id='add-category-info')
 					form.form-horizontal(action='/budget/updateCategories', method='POST', id='addCategoryForm')
 						.col-sm-6.no-margin-left
 							label.control-label(for='category') Category

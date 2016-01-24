@@ -12,9 +12,35 @@ $(document).on('ready', function(){
 		budgets: user.budgets
 	}
 
+	var updateAddCategoryInfo = function(budgetPeriod) {
+		var addCategoryInfo = 'Select a category to add to your budget, and the alotted amount on ';
+		switch (budgetPeriod) {
+			case 'weekly':
+				addCategoryInfo += 'a weekly basis.';
+				break;
+			case 'monthly':
+				addCategoryInfo += 'a monthly basis.';
+				break;
+			case 'annual':
+				addCategoryInfo += 'an annual basis.';
+				break;
+			default:
+				addCategoryInfo += 'a monthly basis.';
+				break;
+		}
+		$('#add-category-info').text(addCategoryInfo);
+	}
+
 	if (user.budgetPeriod) {
 		budgetPeriodList.find('option[value=' + user.budgetPeriod + ']').prop('selected', true);
+		updateAddCategoryInfo(user.budgetPeriod);
 	}
+
+	$('#budgetPeriod').on('change', function (e) {
+	    var optionSelected = $("option:selected", this);
+	    var valueSelected = this.value;
+	    updateAddCategoryInfo(valueSelected);
+	});
 
 	var addBudgetToList = function(budget) {
 		var elId = 'category-' + budget.categoryName.replace(/\ /g, '_');

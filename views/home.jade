@@ -25,7 +25,7 @@ block content
       .col-sm-12
         .col-sm-6.col-sm-offset-3
           h1.text-center(style='font-size: 60px;') Cash Strapped
-        .col-sm-3.text-center(style='margin-top: 40px;')
+        .col-sm-3.text-center.pull-right(style='margin-top: 40px; margin-right: -60px;')
           form.m-right-5(id="plaid-update" method="POST" action="/plaid/authenticate")
           i.fa.fa-info-circle(data-toggle='tooltip', title='If you have changed your login credentials with your banking institution, you will need to relink your account.')
 
@@ -41,7 +41,7 @@ block content
 
       if user.totalBudget > 0
         h2 Total #{capitalize(user.budgetPeriod)} Expenses
-          span.pull-right
+          span.pull-right(id='total-expenses')
             i.fa.fa-sm.fa-money.cursor(class='openDealsModal')
             | $#{expenses_data.total} / $#{user.totalBudget}
         +stacked_progress_bar(category_data, expenses_data, bar_colors)
