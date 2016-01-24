@@ -138,12 +138,6 @@ app.post('/plaid/authenticateBank', budgetController.authenticateBank);
 app.post('/plaid/authenticate', passportConf.isAuthenticated, budgetController.authenticatePlaid);
 
 /**
- * API examples routes.
- */
-app.get('/api', apiController.getApi);
-app.get('/api/facebook', passportConf.isAuthenticated, passportConf.isAuthorized, apiController.getFacebook);
-
-/**
  * Error Handler.
  */
 app.use(errorHandler());
